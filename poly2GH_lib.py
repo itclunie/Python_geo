@@ -1,77 +1,8 @@
-# coding: utf-8
-
-# In[1]:
-
-
-import adv_geohash #aka mixed library from python-geohash and polygon-geohasher modified for python 3
-import shapefile
-from shapely.geometry import Polygon
-
-
-# In[2]:
-
-
-polyRdr = shapefile.Reader(r'H:\Development\pghTest.shp')
-# polyFeat = polyRdr.shapes()
-
-feature = polyRdr.shapeRecords()[0]
-first = feature.shape.__geo_interface__ #geoJson dict format
-# first = feature.shape #shp format
-
-polygon = Polygon(list(first['coordinates'][0]))
-
-#print(polygon)
-
-
-# In[6]:
-
-
-GHs = adv_geohash.polygon_to_geohashes(polygon,6,inner=True)
-GHs = list(GHs)
-print(len(GHs), GHs)
-
-
-# In[16]:
-
-
-import georaptor
-optimzdGH = georaptor.compress(set(GHs),3,7)
-print(len(optimzdGH),optimzdGH)
-
-
-# In[48]:
-
-
-# visualize = adv_geohash.geohashes_to_polygon(list(optimzdGH))
-outPolys = {}
-for gh in optimzdGH:
-    poly = adv_geohash.geohash_to_polygon(gh)
-    polyLst = [list(cpair) for cpair in poly.__geo_interface__['coordinates'][0]]
-    outPolys[gh] = polyLst
-
-
-# In[49]:
-
-
-w = shapefile.Writer(shapeType=shapefile.POLYGON)
-w.field('name')
-
-for key in outPolys:
-    w.poly(parts=[outPolys[key]])
-    w.record(key)
-    
-w.save(r'H:\Development\pgh\testOut.shp')
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 
 
 # coding: UTF-8
 """
-mixed library from python-geohash and polygon-geohasher modified for python 3 by Ian Clunie 
+mixed library from python-geohash and polygon-geohasher modified for python 3 
 """
 
 import queue, sys
